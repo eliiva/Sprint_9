@@ -1,0 +1,5 @@
+base_url = 'https://foodgram-frontend-1.foodgram.education-services.ru/'
+signin_page_url = f'{base_url}signin'
+signup_page_url = f'{base_url}signup'
+main_page_url = f'{base_url}recipes'
+recipes_create_page_url = f'{base_url}recipes/create'

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+
+  selenoid:
+    image: "aerokube/selenoid"
+    container_name: selenoid
+    ports:
+      - "4444:4444"
+    volumes:
+      - "./config.json:/etc/selenoid/config.json"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - DOCKER_API_VERSION=1.40
+      - OVERRIDE_CONTAINER_NETWORK=${COMPOSE_PROJECT_NAME}_default
+    command: ["-conf", "/etc/selenoid/config.json"]
+
+  selenoid-ui:
+    image: "aerokube/selenoid-ui:latest"
+    container_name: selenoid-ui
+    ports:
+      - "8081:8080"
+    command: ["--selenoid-uri", "http://selenoid:4444"]
+
+  test_docker:
+    build: .
+    container_name: test_docker
+    depends_on:
+      - selenoid
+    tty: true
+    command: ["pytest", "--alluredir=allure-results"]
+    volumes:
+      - ./allure-results:/app/allure-results
