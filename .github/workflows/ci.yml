@@ -18,6 +18,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Pull Selenoid Browser Image
+        run: |
+          docker pull selenoid/chrome:128.0
+
       - name: Start Docker Compose Services
         run: |
           docker compose up -d selenoid selenoid-ui
