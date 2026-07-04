@@ -5,25 +5,20 @@ services:
   selenoid:
     image: "aerokube/selenoid"
     container_name: selenoid
-    ports:
-      - "4444:4444"
+    network_mode: host
     volumes:
       - "./config.json:/etc/selenoid/config.json"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    environment:
-      - OVERRIDE_CONTAINER_NETWORK=test-network
     command: ["-conf", "/etc/selenoid/config.json"]
-    networks:
-      - test-network
 
   selenoid-ui:
     image: "aerokube/selenoid-ui:latest"
     container_name: selenoid-ui
     ports:
       - "8081:8080"
-    command: ["--selenoid-uri", "http://selenoid:4444"]
-    networks:
-      - test-network
+    command: ["--selenoid-uri", "http://127.0.0.1:4444"]
+    depends_on:
+      - selenoid
 
   test_docker:
     build: .
@@ -31,12 +26,7 @@ services:
     depends_on:
       - selenoid
     tty: true
+    network_mode: host
     command: ["pytest", "--alluredir=allure-results"]
     volumes:
       - ./allure-results:/app/allure-results
-    networks:
-      - test-network
-
-networks:
-  test-network:
-    driver: bridge
