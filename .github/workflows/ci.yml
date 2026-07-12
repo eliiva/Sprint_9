@@ -1,0 +1,41 @@
+name: CI Pipeline with Selenoid
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pull Selenoid Browser Image
+        run: |
+          docker pull selenoid/chrome:128.0
+
+      - name: Start Docker Compose Services
+        run: |
+          docker compose up -d selenoid selenoid-ui
+        
+      - name: Wait for Selenoid to be ready
+        run: sleep 5
+
+      - name: Run Tests Container
+        run: |
+          docker compose up --build --abort-on-container-exit --exit-code-from test_docker test_docker
+
+      - name: Upload Allure Results Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
